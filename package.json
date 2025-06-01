@@ -1,0 +1,32 @@
+{
+  "name": "github-webhooks",
+  "version": "1.0.0",
+  "description": "Webhooks enable you to setup Github to invoke functions on your server.",
+  "main": "webhook-server.js",
+  "scripts": {
+    "dev": "node webhook-server.js --name deploy-listener"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbosshardt/github-webhooks.git"
+  },
+  "keywords": [
+    "Github",
+    "Webhooks",
+    "CI",
+    "continuous",
+    "integration",
+    "DevOps"
+  ],
+  "author": "Samuel Bosshardt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sbosshardt/github-webhooks/issues"
+  },
+  "homepage": "https://github.com/sbosshardt/github-webhooks#readme",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "child_process": "^1.0.2",
+    "express": "^5.1.0"
+  }
+}
