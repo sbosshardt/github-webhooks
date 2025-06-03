@@ -29,7 +29,7 @@ function verifyGitHubSignature(req, res, buf, encoding) {
 app.post('/github-webhook/deploy/evmgastracker.com', (req, res) => {
   const branch = req.body.ref;
   if (branch === 'refs/heads/master') {
-    console.log('Push to master detected. Deploying...');
+    console.log('Push to master detected for evmgastracker.com repository. Deploying...');
 
     exec(`
       cd /var/www/evmgastracker.com &&
@@ -53,7 +53,7 @@ app.post('/github-webhook/deploy/evmgastracker.com', (req, res) => {
 app.post('/github-webhook/deploy/github-webhooks', (req, res) => {
   const branch = req.body.ref;
   if (branch === 'refs/heads/master') {
-    console.log('Push to master detected. Deploying...');
+    console.log('Push to master detected for github-webhooks repository. Deploying...');
 
     exec(`
       cd /home/pm2/github-webhooks &&
