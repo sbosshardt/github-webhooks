@@ -1,14 +1,15 @@
 [Unit]
-Description=GitHub Webhook Auto-Deploy Listener
+Description=Webhook Auto-Deploy Listener
 After=network.target
 
 [Service]
 Type=simple
 User=pm2
-WorkingDirectory=/home/pm2/github-webhooks
-ExecStart=/usr/bin/node /home/pm2/github-webhooks/webhook-server.js
+SyslogIdentifier=webhook-listener
+WorkingDirectory=/home/pm2/webhook-listener
+ExecStart=/home/pm2/webhook-listener/start-webhook-server.sh
 Restart=on-failure
-EnvironmentFile=/home/pm2/github-webhooks/.env
+EnvironmentFile=/home/pm2/webhook-listener/.env
 
 [Install]
 WantedBy=multi-user.target

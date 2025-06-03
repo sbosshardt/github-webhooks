@@ -1,14 +1,14 @@
 {
-  "name": "github-webhooks",
+  "name": "webhook-listener",
   "version": "1.0.0",
-  "description": "Webhooks enable you to setup Github to invoke functions on your server.",
+  "description": "Webhooks enable you to setup Git hosting services to invoke functions on your server.",
   "main": "webhook-server.js",
   "scripts": {
     "dev": "node webhook-server.js --name deploy-listener"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sbosshardt/github-webhooks.git"
+    "url": "git+https://github.com/sbosshardt/webhook-listener.git"
   },
   "keywords": [
     "Github",
@@ -21,9 +21,9 @@
   "author": "Samuel Bosshardt",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sbosshardt/github-webhooks/issues"
+    "url": "https://github.com/sbosshardt/webhook-listener/issues"
   },
-  "homepage": "https://github.com/sbosshardt/github-webhooks#readme",
+  "homepage": "https://github.com/sbosshardt/webhook-listener#readme",
   "dependencies": {
     "body-parser": "^2.2.0",
     "child_process": "^1.0.2",

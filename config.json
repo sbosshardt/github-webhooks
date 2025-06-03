@@ -5,9 +5,9 @@
             "deployScript": "./deploy/evm-gas-tracker.sh",
             "branch": "master"
         },
-        "github-webhooks": {
-            "path": "/home/pm2/github-webhooks",
-            "deployScript": "./deploy/github-webhooks.sh",
+        "webhook-listener": {
+            "path": "/home/pm2/webhook-listener",
+            "deployScript": "./deploy/webhook-listener.sh",
             "branch": "master"
         }
     }

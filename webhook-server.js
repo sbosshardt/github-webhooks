@@ -7,16 +7,16 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
-const secret = process.env.GITHUB_WEBHOOK_SECRET;
+const secret = process.env.WEBHOOK_SECRET;
 const port = process.env.LISTEN_PORT || 4000;
 
 const config = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'config.json'), 'utf-8')
 );
 
-app.use(bodyParser.json({ verify: verifyGitHubSignature }));
+app.use(bodyParser.json({ verify: verifySignature }));
 
-function verifyGitHubSignature(req, res, buf) {
+function verifySignature(req, res, buf) {
   const signature = req.headers['x-hub-signature-256'];
   if (!signature || !secret) {
     console.error('Missing signature or secret');
@@ -32,7 +32,7 @@ function verifyGitHubSignature(req, res, buf) {
   }
 }
 
-app.post('/github-webhook/deploy/:project', (req, res) => {
+app.post('/webhook/deploy/:project', (req, res) => {
   const projectName = req.params.project;
   const project = config.projects[projectName];
 
@@ -47,7 +47,7 @@ app.post('/github-webhook/deploy/:project', (req, res) => {
 
   console.log(`Push to ${project.branch} detected for ${projectName}. Initiating deployment process...`);
 
-  // Send an immediate success response to GitHub to prevent timeout
+  // Send an immediate success response to caller to prevent timeout
   res.status(202).send('Accepted: Deployment process initiated.');
 
   const scriptPath = path.join(__dirname, project.deployScript);
@@ -84,6 +84,6 @@ ${stderr}`);
 app.listen(port, () => {
   console.log('Webhook server running on port '+port+'.');
   Object.keys(config.projects).forEach(name => {
-    console.log(`Listening for POST /github-webhook/deploy/${name}`);
+    console.log(`Listening for POST /webhook/deploy/${name}`);
   });
 });
