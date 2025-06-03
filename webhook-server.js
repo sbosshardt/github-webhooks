@@ -2,83 +2,66 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const { exec } = require('child_process');
-const app = express();
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config();
 
-// Get the secret from the environment variable
-// You can create a .env file and add the secret there
-// or you can set the secret in the environment variables
-// on your server.
-// e.g. GITHUB_WEBHOOK_SECRET="your-secret-here"
+const app = express();
 const secret = process.env.GITHUB_WEBHOOK_SECRET;
+const port = process.env.LISTEN_PORT || 4000;
+
+const config = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'config.json'), 'utf-8')
+);
 
 app.use(bodyParser.json({ verify: verifyGitHubSignature }));
 
-function verifyGitHubSignature(req, res, buf, encoding) {
-  console.log('Verifying GitHub signature...');
+function verifyGitHubSignature(req, res, buf) {
   const signature = req.headers['x-hub-signature-256'];
-  if (!signature) {
-    console.log('No signature found');
+  if (!signature || !secret) {
+    console.error('Missing signature or secret');
     return;
   }
 
   const hmac = crypto.createHmac('sha256', secret);
   hmac.update(buf);
+  const expected = `sha256=${hmac.digest('hex')}`;
 
-  const expected = 'sha256=' + hmac.digest('hex');
   if (signature !== expected) {
     throw new Error('Invalid signature');
   }
 }
 
-app.post('/github-webhook/deploy/evmgastracker.com', (req, res) => {
-  const branch = req.body.ref;
-  if (branch === 'refs/heads/master') {
-    console.log('Push to master detected for evmgastracker.com repository. Deploying...');
+app.post('/github-webhook/deploy/:project', (req, res) => {
+  const projectName = req.params.project;
+  const project = config.projects[projectName];
 
-    exec(`
-      cd /var/www/evmgastracker.com &&
-      git pull origin master &&
-      npm install &&
-      npm run build &&
-      pm2 restart all
-    `, (err, stdout, stderr) => {
-      if (err) {
-        console.error(`Deploy failed: ${stderr}`);
-        return res.status(500).send('Deploy error');
-      }
-      console.log(`Deploy output:\n${stdout}`);
-      res.send('Deployed!');
-    });
-  } else {
-    res.send('Not master branch');
+  if (!project) {
+    return res.status(404).send('Project not found');
   }
+
+  const branch = req.body.ref;
+  if (branch !== `refs/heads/${project.branch}`) {
+    return res.status(200).send(`Not ${project.branch} branch`);
+  }
+
+  console.log(`Push to ${project.branch} detected for ${projectName}. Deploying...`);
+
+  const scriptPath = path.join(__dirname, project.deployScript);
+  exec(scriptPath, (err, stdout, stderr) => {
+    if (err) {
+      console.error(`Deploy failed for ${projectName}:\n${stderr}`);
+      return res.status(500).send('Deploy failed');
+    }
+
+    console.log(`Deploy output for ${projectName}:\n${stdout}`);
+    res.send('Deployed!');
+  });
 });
 
-app.post('/github-webhook/deploy/github-webhooks', (req, res) => {
-  const branch = req.body.ref;
-  if (branch === 'refs/heads/master') {
-    console.log('Push to master detected for github-webhooks repository. Deploying...');
-
-    exec(`
-      cd /home/pm2/github-webhooks &&
-      git pull origin master &&
-      pm2 restart all
-    `, (err, stdout, stderr) => {
-      if (err) {
-        console.error(`Deploy failed: ${stderr}`);
-        return res.status(500).send('Deploy error');
-      }
-      console.log(`Deploy output:\n${stdout}`);
-      res.send('Deployed!');
-    });
-  } else {
-    res.send('Not master branch');
-  }
-});
-
-app.listen(4000, () => {
-  console.log('Webhook listener on port 4000 supports');
-  console.log('POST /github-webhook/deploy/evmgastracker.com');
-  console.log('POST /github-webhook/deploy/github-webhooks');
-  console.log()
+app.listen(port, () => {
+  console.log('Webhook server running on port '+port+'.');
+  Object.keys(config.projects).forEach(name => {
+    console.log(`Listening for POST /github-webhook/deploy/${name}`);
+  });
 });

@@ -1,0 +1,14 @@
+{
+    "projects": {
+        "evmgastracker.com": {
+            "path": "/var/www/evmgastracker.com",
+            "deployScript": "./deploy/evm-gas-tracker.sh",
+            "branch": "master"
+        },
+        "github-webhooks": {
+            "path": "/home/pm2/github-webhooks",
+            "deployScript": "./deploy/github-webhooks.sh",
+            "branch": "master"
+        }
+    }
+}
