@@ -23,6 +23,10 @@ A lightweight Node.js Express server that listens for GitHub Webhook `push` even
 npm install
 ```
 
+2. Go to your repository's settings in Github and go to "Webhooks".
+
+3. Set up a webhook with content-type `application/json` that is triggered by "Just the `push` event".
+
 ## 📡 Running as a Systemd Service
 Create the unit file:
 
