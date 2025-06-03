@@ -5,10 +5,10 @@ After=network.target
 [Service]
 Type=simple
 User=pm2
-WorkingDirectory=/var/www/webhook-deploy-listener
-ExecStart=/usr/bin/node /var/www/webhook-deploy-listener/webhook-server.js
+WorkingDirectory=/home/pm2/github-webhooks
+ExecStart=/usr/bin/node /home/pm2/github-webhooks/webhook-server.js
 Restart=on-failure
-Environment=NODE_ENV=production
+EnvironmentFile=/home/pm2/github-webhooks/.env
 
 [Install]
 WantedBy=multi-user.target
