@@ -42,20 +42,42 @@ app.post('/github-webhook/deploy/:project', (req, res) => {
 
   const branch = req.body.ref;
   if (branch !== `refs/heads/${project.branch}`) {
-    return res.status(200).send(`Not ${project.branch} branch`);
+    return res.status(200).send(`Not ${project.branch} branch. No action taken.`);
   }
 
-  console.log(`Push to ${project.branch} detected for ${projectName}. Deploying...`);
+  console.log(`Push to ${project.branch} detected for ${projectName}. Initiating deployment process...`);
+
+  // Send an immediate success response to GitHub to prevent timeout
+  res.status(202).send('Accepted: Deployment process initiated.');
 
   const scriptPath = path.join(__dirname, project.deployScript);
   exec(scriptPath, (err, stdout, stderr) => {
     if (err) {
-      console.error(`Deploy failed for ${projectName}:\n${stderr}`);
-      return res.status(500).send('Deploy failed');
+      console.error(`Deploy script execution failed for ${projectName}:`);
+      console.error(`Error: ${err.message}`);
+      if (stdout) {
+        console.error(`Stdout:
+${stdout}`);
+      }
+      if (stderr) {
+        console.error(`Stderr:
+${stderr}`);
+      }
+      // Cannot send HTTP response here as it's already been sent.
+      // Consider implementing more robust error reporting if needed (e.g., logging to a file, sending a notification).
+      return;
     }
 
-    console.log(`Deploy output for ${projectName}:\n${stdout}`);
-    res.send('Deployed!');
+    console.log(`Deploy script executed successfully for ${projectName}:`);
+    if (stdout) {
+      console.log(`Stdout:
+${stdout}`);
+    }
+    if (stderr) {
+      // Some scripts might output to stderr for informational purposes even on success
+      console.warn(`Stderr (check if this is expected):
+${stderr}`);
+    }
   });
 });
 
