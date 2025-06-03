@@ -21,6 +21,28 @@ A lightweight Node.js Express server that listens for GitHub Webhook `push` even
 
 ```bash
 npm install
+```
+
+## 📡 Running as a Systemd Service
+Create the unit file:
+
+```bash
+sudo cp webhook-listener.service.example /etc/systemd/system/webhook-listener.service
+```
+
+Use a text editor to configure:
+```bash
+nano /etc/systemd/system/webhook-listener.service
+```
+
+### Key Notes:
+
+1. `User=pm2` — Replace with the correct user that owns the repo.
+
+2. `WorkingDirectory` and `ExecStart` — must point to your actual script directory and file.
+
+3. Make sure Node.js is installed at `/usr/bin/node` (check with `which node`).
+
 
 ## License
 
@@ -28,5 +50,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Author
 
-Samuel Bosshardt ([@sbosshardt](https://github.com/sbosshardt))
-With assistance from GPT 4o
+Samuel Bosshardt ([@sbosshardt](https://github.com/sbosshardt)).
+With assistance from GPT 4o.
