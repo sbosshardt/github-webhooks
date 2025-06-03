@@ -14,8 +14,12 @@ const secret = process.env.GITHUB_WEBHOOK_SECRET;
 app.use(bodyParser.json({ verify: verifyGitHubSignature }));
 
 function verifyGitHubSignature(req, res, buf, encoding) {
+  console.log('Verifying GitHub signature...');
   const signature = req.headers['x-hub-signature-256'];
-  if (!signature) return;
+  if (!signature) {
+    console.log('No signature found');
+    return;
+  }
 
   const hmac = crypto.createHmac('sha256', secret);
   hmac.update(buf);
