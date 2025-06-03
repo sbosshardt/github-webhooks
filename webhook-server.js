@@ -50,8 +50,31 @@ app.post('/github-webhook/deploy/evmgastracker.com', (req, res) => {
   }
 });
 
+app.post('/github-webhook/deploy/github-webhooks', (req, res) => {
+  const branch = req.body.ref;
+  if (branch === 'refs/heads/master') {
+    console.log('Push to master detected. Deploying...');
+
+    exec(`
+      cd /home/pm2/github-webhooks &&
+      git pull origin master &&
+      pm2 restart all
+    `, (err, stdout, stderr) => {
+      if (err) {
+        console.error(`Deploy failed: ${stderr}`);
+        return res.status(500).send('Deploy error');
+      }
+      console.log(`Deploy output:\n${stdout}`);
+      res.send('Deployed!');
+    });
+  } else {
+    res.send('Not master branch');
+  }
+});
+
 app.listen(4000, () => {
   console.log('Webhook listener on port 4000 supports');
   console.log('POST /github-webhook/deploy/evmgastracker.com');
+  console.log('POST /github-webhook/deploy/github-webhooks');
   console.log()
 });
