@@ -11,7 +11,7 @@ A lightweight Node.js Express server that listens for GitHub Webhook `push` even
 
 ## Requirements
 
-- Node.js ≥ 14
+- Node.js ≥ 20 (Consider using [Nodesource](https://github.com/nodesource/distributions) to install Node systemwide, and remove old version if not needed.)
 - GitHub repository (public or private)
 - Your app must be using `pm2` to manage processes
 
@@ -23,7 +23,7 @@ A lightweight Node.js Express server that listens for GitHub Webhook `push` even
 npm install
 ```
 
-2. Go to your repository's settings in Github and go to "Webhooks".
+2. Go to your repository's settings (e.g. in Github) and go to "Webhooks".
 
 3. Set up a webhook with content-type `application/json` that is triggered by "Just the `push` event".
 
