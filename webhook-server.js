@@ -7,16 +7,15 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
-const secret = process.env.WEBHOOK_SECRET;
-const port = process.env.LISTEN_PORT || 4000;
-
 const config = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'config.json'), 'utf-8')
 );
-
+const port = config.port;
 app.use(bodyParser.json({ verify: verifySignature }));
 
 function verifySignature(req, res, buf) {
+  const secret = config.projects[req.params.project].webhookSecret;
+  // Signature is provided by the webhook service (i.e. Github, BitBucket, etc.)
   const signature = req.headers['x-hub-signature-256'];
   if (!signature || !secret) {
     console.error('Missing signature or secret');

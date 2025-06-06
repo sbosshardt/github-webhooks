@@ -1,14 +1,17 @@
 {
+    "port": 4000,
     "projects": {
         "evmgastracker.com": {
             "path": "/var/www/evmgastracker.com",
             "deployScript": "./deploy/evm-gas-tracker.sh",
-            "branch": "master"
+            "branch": "master",
+            "webhookSecret": "webhook-secret-for-this-project"
         },
         "webhook-listener": {
             "path": "/home/pm2/webhook-listener",
             "deployScript": "./deploy/webhook-listener.sh",
-            "branch": "master"
+            "branch": "master",
+            "webhookSecret": "a-different-project's-webhook-secret"
         }
     }
 }
