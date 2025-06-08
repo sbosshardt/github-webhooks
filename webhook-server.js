@@ -7,26 +7,25 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
-const config = JSON.parse(
-  fs.readFileSync(path.join(__dirname, 'config.json'), 'utf-8')
-);
+const configData = fs.readFileSync(path.join(__dirname, 'config.json'), 'utf-8');
+console.log('configData:', configData);
+const config = JSON.parse(configData);
+console.log('config:', config);
 const port = config.port;
-app.use(bodyParser.json({ verify: verifySignature }));
+// Use raw body parser to get access to raw request body for signature verification
+app.use(bodyParser.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 
-function verifySignature(req, res, buf) {
-  const projectName = req.params.project;
-  const project = config.projects[projectName];
-  const secret = project.webhookSecret;
-
-  // Signature is provided by the webhook service (i.e. Github, BitBucket, etc.)
-  const signature = req.headers['x-hub-signature-256'];
+function verifySignature(projectName, rawBody, signature, secret) {
   if (!signature || !secret) {
-    console.error(`Missing signature or secret for project "${projectName}".`);
-    return;
+    throw new Error(`Missing signature or secret for project "${projectName}".`);
   }
 
   const hmac = crypto.createHmac('sha256', secret);
-  hmac.update(buf);
+  hmac.update(rawBody);
   const expected = `sha256=${hmac.digest('hex')}`;
 
   if (signature !== expected) {
@@ -41,6 +40,15 @@ app.post('/webhook/deploy/:project', (req, res) => {
   if (!project) {
     const status_text = 'Project "'+projectName+'" not found';
     return res.status(404).send(status_text);
+  }
+
+  // Verify signature
+  try {
+    const signature = req.headers['x-hub-signature-256'];
+    verifySignature(projectName, req.rawBody, signature, project.webhookSecret);
+  } catch (error) {
+    console.error(`Signature verification failed for project "${projectName}":`, error.message);
+    return res.status(401).send('Invalid signature');
   }
 
   const branch = req.body.ref;
