@@ -14,11 +14,14 @@ const port = config.port;
 app.use(bodyParser.json({ verify: verifySignature }));
 
 function verifySignature(req, res, buf) {
-  const secret = config.projects[req.params.project].webhookSecret;
+  const projectName = req.params.project;
+  const project = config.projects[projectName];
+  const secret = project.webhookSecret;
+
   // Signature is provided by the webhook service (i.e. Github, BitBucket, etc.)
   const signature = req.headers['x-hub-signature-256'];
   if (!signature || !secret) {
-    console.error('Missing signature or secret');
+    console.error(`Missing signature or secret for project "${projectName}".`);
     return;
   }
 
@@ -36,7 +39,8 @@ app.post('/webhook/deploy/:project', (req, res) => {
   const project = config.projects[projectName];
 
   if (!project) {
-    return res.status(404).send('Project not found');
+    const status_text = 'Project "'+projectName+'" not found';
+    return res.status(404).send(status_text);
   }
 
   const branch = req.body.ref;

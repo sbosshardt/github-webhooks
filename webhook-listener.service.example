@@ -9,7 +9,6 @@ SyslogIdentifier=webhook-listener
 WorkingDirectory=/home/pm2/webhook-listener
 ExecStart=/home/pm2/webhook-listener/start-webhook-server.sh
 Restart=on-failure
-EnvironmentFile=/home/pm2/webhook-listener/.env
 
 [Install]
 WantedBy=multi-user.target
