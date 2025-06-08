@@ -51,8 +51,25 @@ app.post('/webhook/deploy/:project', (req, res) => {
     return res.status(401).send('Invalid signature');
   }
 
-  const branch = req.body.ref;
-  if (branch !== `refs/heads/${project.branch}`) {
+  // Log the payload for debugging
+  console.log('Received webhook payload:', JSON.stringify(req.body, null, 2));
+
+  // Handle both GitHub and Bitbucket payloads
+  let branch;
+  if (req.body.ref) {
+    // GitHub format: "refs/heads/master"
+    branch = req.body.ref.replace('refs/heads/', '');
+  } else if (req.body.push?.changes?.[0]?.new?.name) {
+    // Bitbucket format
+    branch = req.body.push.changes[0].new.name;
+  } else {
+    console.error('Could not determine branch from payload:', req.body);
+    return res.status(400).send('Could not determine branch from payload');
+  }
+
+  console.log(`Detected branch: ${branch}`);
+  
+  if (branch !== project.branch) {
     return res.status(200).send(`Not ${project.branch} branch. No action taken.`);
   }
 
