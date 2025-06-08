@@ -49,6 +49,7 @@ nano /etc/systemd/system/webhook-listener.service
 
 3. Make sure Node.js is installed at `/usr/bin/node` (check with `which node`).
 
+4. Set up the user to be able to restart the service. (i.e. `sudo visudo` and add `pm2 ALL=(ALL) NOPASSWD: /bin/systemctl restart webhook-listener`)
 
 ## License
 
